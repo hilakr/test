@@ -17,13 +17,21 @@ public class Controller {
     DDoSProtectionService service = new DDoSProtectionService();
 
     @GetMapping()
-    ResponseEntity clientRequest(@RequestParam int clientId) throws ExecutionException, InterruptedException {
-        ResponseEntity futureRespone = CompletableFuture.supplyAsync(() -> {
-            if (service.isAttack(clientId))
+    ResponseEntity clientRequest(@RequestParam int clientId) throws InterruptedException, ExecutionException{
+        CompletableFuture<ResponseEntity> futureResponse = CompletableFuture.supplyAsync(() -> {
+            if (service.isAttack(clientId)){
+                logger.debug("server got more than 5 requests per 5 secs, will return Service Unavailable");
                 return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
+            }
             else return new ResponseEntity(HttpStatus.OK);
-        }).get();
-        return futureRespone;
+        });
+        try {
+           return futureResponse.get();
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (ExecutionException e) {
+           throw e;
+        }
     }
 
 }

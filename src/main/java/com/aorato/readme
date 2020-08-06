@@ -1,6 +1,36 @@
-**HTTPProtectionSystem**
+****HTTPProtectionSystem****
 
-HTTPProtectionSystem is a gradle application that contains two springboot applications:
+HTTPProtectionSystem is a gradle application that contains two spring boot applications:
 1.`ServerApplication` is the main app.
 2.`ClientApplication`
 
+The two applications run until the user input "Enter"
+
+**Client side** 
+
+`ClientApplication` 
+1. gets an argument the number of HTTP clients to simulate.
+2. creates map of clients where the key is `clientId` and the value is `ClientHTTPRequest`.
+3. call `sendHttpRequest` method from `ClientHTTPRequest` class until the user will input "Enter" 
+
+`ClientHTTPRequest` is a class that sends async http request to server,
+using `CompletableFuture` . 
+I choose to use CompletableFuture class because its good wrapper to Thread class.
+It is used for asynchronous computation. The code is executed as a non-blocking call in a separate thread, and the result is made available when it is ready.
+By doing this, the main thread does not block/wait for the completion of the task, and it can execute other tasks in parallel.
+
+**Server side**
+`Contorller` - is a class that gets the http request from the client
+and return `ResponseEntity` with the relevant http status (200 or 503)
+
+`DDoSProtectionService` - is a service the responsible for the logic.
+whether to send 200 status code or 503 code.
+The service maintains a map that contains <clientId, DDoSProtection>
+
+`DDoSProtection` - is a data class that contains the information we need to maintain for client.
+LocalDateTime time - client’s first request.
+int counter - count the client's requests.
+
+**General information**
+
+language: java 8 with gradle.

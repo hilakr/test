@@ -2,6 +2,7 @@ package com.aorato.server;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
@@ -12,15 +13,14 @@ public class ServerApplication {
 
     public static void main(String[] args) throws IOException {
 
-        new SpringApplicationBuilder()
+        ConfigurableApplicationContext serverApplication = new SpringApplicationBuilder()
                 .sources(ServerApplication.class)
                 .profiles("server")
                 .run(args);
 
         while (System.in.available() == 0){
-            System.out.println("server run until user will do ENTER");
-
         }
+        serverApplication.close();
         System.out.println("Bye Bye");
     }
 }

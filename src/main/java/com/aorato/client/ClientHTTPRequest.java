@@ -13,29 +13,37 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-public class ClientHTTPAttack {
+public class ClientHTTPRequest {
     int clientId;
     String uri = "http://localhost:8080?clientId=";
-    Logger logger = LoggerFactory.getLogger(ClientHTTPAttack.class);
+    Logger logger = LoggerFactory.getLogger(ClientHTTPRequest.class);
 
-    public ClientHTTPAttack(int clientId) {
+    public ClientHTTPRequest(int clientId) {
         this.clientId = clientId;
     }
 
-    public void sendHttpRequest(Executor executor) throws ExecutionException, InterruptedException {
+    public void sendHttpRequest(Executor executor) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder().uri(URI.create(this.uri + this.clientId)).build();
-                TimeUnit.SECONDS.sleep((long)(Math. random() * 5));
-                 int status = client.send(request, HttpResponse.BodyHandlers.ofString()).statusCode();
-                 logger.info("clientId: " + clientId +", status code: "+ status);
+                TimeUnit.SECONDS.sleep((long) (Math.random() * 5));
+                int status = client.send(request, HttpResponse.BodyHandlers.ofString()).statusCode();
+                logger.info("clientId: " + clientId + ", status code: " + status);
             } catch (InterruptedException | IOException e) {
 
                 throw new IllegalStateException(e);
             }
-        });
-        future.get();
+        }, executor);
+        try {
+            future.get();
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }
